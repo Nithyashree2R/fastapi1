@@ -210,46 +210,6 @@ async def get_out_of_stock_dishes(token: str = Depends(oauth_scheme)):
 # Analytics & Reports APIs (Admin)
 # ========================
 
-# Apply authorization to the reports endpoints
-@app.get("/admin/reports/sales", tags=["Reports"])
-async def get_sales_report(token: str = Depends(oauth_scheme)):
-    period: str = Query("daily", enum=["daily", "weekly", "monthly"], description="Time period for the sales report"),
-    token: str = Depends(oauth_scheme)  # Adding token dependency here
-
-    """
-    Get sales report for a specified period (daily, weekly, or monthly).
-    """
-    db = get_db()
-    cursor = db.cursor()
-
-    # Calculate the start date based on the period
-    now = datetime.now()
-    if period == "daily":
-        start_date = now - timedelta(days=1)
-    elif period == "weekly":
-        start_date = now - timedelta(weeks=1)
-    elif period == "monthly":
-        start_date = now - timedelta(weeks=4)
-
-    # Format the start_date to match SQLite format
-    start_date_str = start_date.strftime('%Y-%m-%d %H:%M:%S')
-
-    cursor.execute(''' 
-        SELECT SUM(quantity * price_per_item) AS total_sales, strftime('%Y-%m-%d', sale_date) AS sale_day
-        FROM sales
-        WHERE sale_date >= ?
-        GROUP BY sale_day
-        ORDER BY sale_day DESC;
-    ''', (start_date_str,))
-
-    sales_data = cursor.fetchall()
-    db.close()
-
-    if not sales_data:
-        return JSONResponse(content={"message": "No sales data found for the specified period"}, status_code=status.HTTP_200_OK)
-
-    return [{"sale_day": row["sale_day"], "total_sales": row["total_sales"]} for row in sales_data]
-
 
 @app.get("/admin/reports/inventory", tags=["Reports"])
 async def get_inventory_report(token: str = Depends(oauth_scheme)):  # Adding token dependency here
