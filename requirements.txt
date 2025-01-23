@@ -1,0 +1,5 @@
+fastapi==0.95.2
+uvicorn==0.22.0
+pydantic==1.10.2
+sqlite3-binary==3.35.5
+pyjwt==2.8.0
