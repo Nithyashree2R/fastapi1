@@ -2,3 +2,5 @@ fastapi==0.95.2
 uvicorn==0.22.0
 pydantic==1.10.2
 pyjwt==2.8.0
+Werkzeug==2.3.7        # For password hashing
+python-multipart==0.0.6 # Required for handling form data
